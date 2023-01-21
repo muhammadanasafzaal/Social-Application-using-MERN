@@ -1,0 +1,160 @@
+MERN APP NOTES
+-----------------
+
+{ [
+
+
+1. create 2 folders
+> client => for frontend 
+> server => for backend
+
+2. open split terminal
+3. inside client folder create run app
+> npx create-react-app ./
+
+4. inside server folder create a file named index.js
+5. inside server folder run =>
+> npm init -y
+> then after that run =>
+> npm install body-parser cors express mongoose nodemon
+* body-parser => for sending api requests
+* cors => to enable cross origin requests
+* express => framework to write api routes
+* mongoose => to create models for post requests
+* nodemon => to update the server after making changes
+
+6. import following inside server>index.js
+import express from 'express';
+import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
+import cors from 'cors';
+
+7. inside package.json below "main":"index.js" type =>
+"type":"module"
+
+8. inside client folder install following packages =>
+> npm install axios moment react-file-base64 redux redux-thunk
+* axios => for making api requests from front end
+* moment => for date
+* react-file-base64 => to convert image to base64
+* redux => for global state management
+* redux-thunk => for async actions using redux
+
+9. in index.js in server folder set json, url and cors parameters
+
+e.g => 
+const app = express();
+
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+app.use(cors());
+
+10. connect to mongodb cloud atlas
+> create free account
+> find and create free shared cluster
+> go to database access and click on add new database user
+> set built-in roles to: read and write any db
+> go to network access and click get current id address and save
+> then go to newly deployed cluster and click connect and select connect application and from there copy the connection string provided
+> then inside your application in index.js file in server folder create a variable for connection for connection string and paste mongodb connection string
+
+e.g =>
+const CONNECTION_URL = 'mongodb+srv://<username>:<password>@cluster0.pe1ecau.mongodb.net/?retryWrites=true&w=majority';
+
+const CONNECTION_URL = 'mongodb+srv://merncrud_anas:merncrud123@cluster0.pe1ecau.mongodb.net/?retryWrites=true&w=majority';
+
+
+
+11. define port in index.js inside server folder
+e.g =>
+const PORT = process.env.port || 5000;
+> then connect to db inside index.js of server folder using mongoose =>
+
+12. create connection string
+mongoose.connect(CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true } ) //useNewUrlParser and useUnifiedTopology are not required but used to prevent warnings
+    .then(()=> app.listen(PORT, () => console.log(`Server running on port: ${PORT}`)))
+    .catch((error)=> console.log(error.message));
+
+13. setup api routes(end points) 
+e.g =>
+in post.js file
+
+import express from 'express';
+import { getPosts } from '../controllers/posts.js';
+
+const router = express.Router();
+
+router.get('/', getPosts)
+
+export default router;
+
+14. import your routes in index.js and connect then connect routes with application using express middlewares
+
+e.g => 
+app.use('/posts', postRoutes) // this tells every route defined in postRoute, will start using posts prefix
+
+e.g => localhost:5000/posts/examplecontroller
+
+15. create a folder for controllers and create a file to define controllers
+
+e.g => controllers/post.js(controllers for our post component)
+
+in controller/posts.js => 
+
+//api to getPosts
+export const getPosts = (req, res) => {
+    res.send('This does work')
+}
+
+16. create a folder for models to define base schema for an api
+
+e.g => creating a model for a social media post component
+a model is used to create a blueprint of how you want the
+added data to look and behave
+
+import mongoose from "mongoose";
+
+const postSchema = mongoose.Schema({
+    title: String,
+    message: String,
+    creator: String,
+    tags: [String],
+    selectedFile: String,
+    likeCount: {
+        type: Number,
+        default: 0
+    },
+    createdAt: {
+        type: Date,
+        default: new Date()
+    }
+})
+
+const PostMessage = mongoose.model('PostMessage', postSchema)
+
+export default PostMessage;
+
+
+17. write controller logic in controllers/posts.js =>
+
+e.g => 
+import PostMessage from "../models/postMessage.js"
+
+export const getPosts = async (req, res) => {
+    try {
+        const postMessages = await PostMessage.find();
+        console.log(postMessages, 'all posts from server')
+        res.status(200).json(postMessages);
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({ message: error.message })
+    }
+}
+
+18. Create component folder in client/ and create components for the app as well as their styles
+
+19. Create api folder in client/src/ and create index.js file to create api calls we will be using axios to make api calls
+
+20. All actions on backend will be done using redux
+> in index.js inside client/src we will use Provider that will keep track of the store which is used for global state management
+
